@@ -44,8 +44,7 @@ PORN_CATEGORIES = [
 # --- FUNCTION TO GET VIDEO URL USING yt-dlp ---
 def get_video_url(search_term):
     site = random.choice(SEARCH_SITES)
-    # exclude YouTube just in case
-    query = f"site:{site} {search_term} -site:youtube.com"
+    query = f"ytsearch10:{search_term} site:{site}"  # fixed search syntax
     
     ydl_opts = {
         "format": "best[ext=mp4]",
@@ -53,10 +52,11 @@ def get_video_url(search_term):
         "quiet": True,
         "default_search": "auto"
     }
+    
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(query, download=False)
-            if "entries" in info:
+            if "entries" in info and info["entries"]:
                 info = random.choice(info["entries"])
             return info.get("url")
     except Exception as e:
