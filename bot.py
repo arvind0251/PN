@@ -1,8 +1,8 @@
 import random
+import requests
+from bs4 import BeautifulSoup
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-import yt_dlp
-import asyncio
 
 # --- CONFIG ---
 API_ID = "21552265"
@@ -13,53 +13,71 @@ GROUP_LINK_1 = "https://t.me/+I-nuO3khvMUwZmY1"
 GROUP_LINK_2 = "https://t.me/+I-nuO3khvMUwZmY1"
 START_IMAGE_URL = "https://i.ibb.co/0jFF4gcX/IMG-20251002-065908-636.jpg"
 
-# --- SEARCH SITES ---
-SEARCH_SITES = [
-    "xnxx.com",
-    "xvideos.com",
-    "xhamster.com",
-    "pornhub.com",
-    "porn.com",
-    "fuq.com",
-    "tube8.com",
-    "youporn.com",
-    "spankbang.com",
-    "redtube.com"
-]
-
 # --- PORN CATEGORIES ---
 PORN_CATEGORIES = [
-    ("Deshi", "desi porn"),
-    ("Indian", "indian porn"),
-    ("Young", "young porn"),
-    ("Wife", "indian wife porn"),
-    ("College", "college porn"),
-    ("Teen", "teen porn"),
-    ("Lesbian", "lesbian porn"),
-    ("Milf", "milf porn"),
-    ("Anal", "anal porn"),
-    ("HD Desi", "hd desi porn"),  # updated for better match
+    ("Deshi", "desi"),
+    ("Indian", "indian"),
+    ("Young", "young"),
+    ("Wife", "wife"),
+    ("College", "college"),
+    ("Teen", "teen"),
+    ("Lesbian", "lesbian"),
+    ("Milf", "milf"),
+    ("Anal", "anal"),
+    ("HD Desi", "hd desi"),
 ]
 
-# --- FUNCTION TO GET VIDEO URL USING yt-dlp ---
-def get_video_url(search_term):
-    random.shuffle(SEARCH_SITES)  # randomize site order
-    for site in SEARCH_SITES:
-        query = f"ytsearch20:{search_term} site:{site}"  # top 20 results
-        ydl_opts = {
-            "format": "best[ext=mp4]",
-            "noplaylist": True,
-            "quiet": True,
-            "default_search": "auto"
+# --- ADULT SITES TO SCRAPE ---
+SEARCH_SITES = [
+    "https://www.xnxx.com/search/{}",
+    "https://www.xvideos.com/?k={}",
+    "https://xhamster.com/search?q={}",
+    "https://www.pornhub.com/video/search?search={}"
+]
+
+# --- FUNCTION TO SCRAPE VIDEO URL ---
+def scrape_video(search_term):
+    random.shuffle(SEARCH_SITES)  # random site order
+    for site_template in SEARCH_SITES:
+        url = site_template.format(search_term.replace(" ", "+"))
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         }
         try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(query, download=False)
-                if "entries" in info and info["entries"]:
-                    info = random.choice(info["entries"])
-                    return info.get("url")
+            resp = requests.get(url, headers=headers, timeout=10)
+            soup = BeautifulSoup(resp.text, "html.parser")
+            
+            # Try to find video links
+            links = []
+            if "xnxx.com" in url:
+                thumbs = soup.find_all("div", class_="thumb")
+                for t in thumbs:
+                    a_tag = t.find("a", href=True)
+                    if a_tag:
+                        links.append("https://www.xnxx.com" + a_tag["href"])
+            elif "xvideos.com" in url:
+                thumbs = soup.find_all("div", class_="thumb-block")
+                for t in thumbs:
+                    a_tag = t.find("a", href=True)
+                    if a_tag:
+                        links.append("https://www.xvideos.com" + a_tag["href"])
+            elif "xhamster.com" in url:
+                thumbs = soup.find_all("div", class_="video-thumb")
+                for t in thumbs:
+                    a_tag = t.find("a", href=True)
+                    if a_tag:
+                        links.append("https://xhamster.com" + a_tag["href"])
+            elif "pornhub.com" in url:
+                thumbs = soup.find_all("a", class_="js-pop videoblock")
+                for t in thumbs:
+                    href = t.get("href")
+                    if href:
+                        links.append("https://www.pornhub.com" + href)
+            
+            if links:
+                return random.choice(links)
         except Exception as e:
-            print(f"yt-dlp error: {e}")
+            print(f"Scraping error ({url}): {e}")
     return None
 
 # --- INIT BOT ---
@@ -78,7 +96,6 @@ async def porn_start(client, message):
     if row:
         keyboard_buttons.append(row)
 
-    # Add group buttons
     keyboard_buttons.insert(0, [InlineKeyboardButton("Join Group 1", url=GROUP_LINK_1)])
     keyboard_buttons.insert(1, [InlineKeyboardButton("Join Group 2", url=GROUP_LINK_2)])
 
@@ -92,12 +109,11 @@ async def porn_start(client, message):
 for idx, (display, search_term) in enumerate(PORN_CATEGORIES):
     async def handler(client, query, search_term=search_term, display=display):
         await query.answer("Fetching video... please wait ⏳")
-        video_url = await asyncio.to_thread(get_video_url, search_term)
+        video_url = await asyncio.to_thread(scrape_video, search_term)
         if video_url:
             try:
                 await query.message.reply_video(video_url, caption=f"{display}")
             except Exception:
-                # fallback if video too big
                 await query.message.reply(f"Cannot send video, watch here: {video_url}")
         else:
             await query.message.reply(f"No video found for {display}.")
