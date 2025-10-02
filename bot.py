@@ -13,7 +13,7 @@ GROUP_LINK_1 = "https://t.me/+I-nuO3khvMUwZmY1"
 GROUP_LINK_2 = "https://t.me/+I-nuO3khvMUwZmY1"
 START_IMAGE_URL = "https://i.ibb.co/0jFF4gcX/IMG-20251002-065908-636.jpg"
 
-# --- SEARCH SITES (YouTube removed) ---
+# --- SEARCH SITES ---
 SEARCH_SITES = [
     "xnxx.com",
     "xvideos.com",
@@ -38,30 +38,29 @@ PORN_CATEGORIES = [
     ("Lesbian", "lesbian porn"),
     ("Milf", "milf porn"),
     ("Anal", "anal porn"),
-    ("HD", "hd porn"),
+    ("HD Desi", "hd desi porn"),  # updated for better match
 ]
 
 # --- FUNCTION TO GET VIDEO URL USING yt-dlp ---
 def get_video_url(search_term):
-    site = random.choice(SEARCH_SITES)
-    query = f"ytsearch10:{search_term} site:{site}"  # fixed search syntax
-    
-    ydl_opts = {
-        "format": "best[ext=mp4]",
-        "noplaylist": True,
-        "quiet": True,
-        "default_search": "auto"
-    }
-    
-    try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(query, download=False)
-            if "entries" in info and info["entries"]:
-                info = random.choice(info["entries"])
-            return info.get("url")
-    except Exception as e:
-        print(f"yt-dlp error: {e}")
-        return None
+    random.shuffle(SEARCH_SITES)  # randomize site order
+    for site in SEARCH_SITES:
+        query = f"ytsearch20:{search_term} site:{site}"  # top 20 results
+        ydl_opts = {
+            "format": "best[ext=mp4]",
+            "noplaylist": True,
+            "quiet": True,
+            "default_search": "auto"
+        }
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(query, download=False)
+                if "entries" in info and info["entries"]:
+                    info = random.choice(info["entries"])
+                    return info.get("url")
+        except Exception as e:
+            print(f"yt-dlp error: {e}")
+    return None
 
 # --- INIT BOT ---
 app = Client("pornbot_categories", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
@@ -79,7 +78,7 @@ async def porn_start(client, message):
     if row:
         keyboard_buttons.append(row)
 
-    # Add group buttons at the top
+    # Add group buttons
     keyboard_buttons.insert(0, [InlineKeyboardButton("Join Group 1", url=GROUP_LINK_1)])
     keyboard_buttons.insert(1, [InlineKeyboardButton("Join Group 2", url=GROUP_LINK_2)])
 
