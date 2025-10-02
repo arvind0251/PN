@@ -137,7 +137,7 @@ def scrape_video(title):
 
 app = Client("pornbot_categories", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-@app.on_message(filters.command("pornstart"))
+@app.on_message(filters.command("start"))
 async def porn_start(client, message):
     keyboard_buttons = []
     row = []
