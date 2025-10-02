@@ -1,4 +1,3 @@
-import asyncio
 import random
 import requests
 from bs4 import BeautifulSoup
@@ -12,79 +11,133 @@ BOT_TOKEN = "7664042669:AAEX4IU21H1r27Pu1kvDNiCowUg8F6t1-jM"
 
 GROUP_LINK_1 = "https://t.me/+I-nuO3khvMUwZmY1"
 GROUP_LINK_2 = "https://t.me/+I-nuO3khvMUwZmY1"
-START_IMAGE_URL = "https://i.ibb.co/0jFF4gcX/IMG-20251002-065908-636.jpg"
+START_IMAGE_URL = "https://i.ibb.co/0jFF4gcX/IMG-20251002-065908-636.jpg"  # Replace with your image
 
-# --- PORN CATEGORIES ---
-PORN_CATEGORIES = [
-    ("Deshi", "desi"),
-    ("Indian", "indian"),
-    ("Young", "young"),
-    ("Wife", "wife"),
-    ("College", "college"),
-    ("Teen", "teen"),
-    ("Lesbian", "lesbian"),
-    ("Milf", "milf"),
-    ("Anal", "anal"),
-    ("HD Desi", "hd desi"),
-]
-
-# --- ADULT SITES TO SCRAPE ---
 SEARCH_SITES = [
     "https://www.xnxx.com/search/{}",
     "https://www.xvideos.com/?k={}",
     "https://xhamster.com/search?q={}",
-    "https://www.pornhub.com/video/search?search={}"
+    "https://www.pornhub.com/video/search?search={}",
+    "https://www.porn.com/search?q={}",
+    "https://www.fuq.com/search?q={}",
+    "https://www.tube8.com/search/videos/{}",
+    "https://www.youporn.com/search/?query={}",
+    "https://spankbang.com/s/{}",
+    "https://www.redtube.com/?search={}"
 ]
 
-# --- FUNCTION TO SCRAPE VIDEO URL ---
-def scrape_video(search_term):
-    random.shuffle(SEARCH_SITES)  # random site order
-    for site_template in SEARCH_SITES:
-        url = site_template.format(search_term.replace(" ", "+"))
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-        }
+# Define all porn categories and their display names here!
+PORN_CATEGORIES = [
+    ("Deshi", "desi porn"),
+    ("Indian", "indian porn"),
+    ("Mother", "indian mother porn"),
+    ("Young", "young porn"),
+    ("Fuck", "fuck porn"),
+    ("Wife", "indian wife porn"),
+    ("Beauty", "beauty porn"),
+    ("Cutie", "cute porn"),
+    ("Beautiful", "beautiful porn"),
+    ("College", "college porn"),
+    ("Bhabhi", "bhabhi porn"),
+    ("Aunty", "aunty porn"),
+    ("Teen", "teen porn"),
+    ("Lesbian", "lesbian porn"),
+    ("Milf", "milf porn"),
+    ("Anal", "anal porn"),
+    ("Big Boobs", "big boobs porn"),
+    ("Big Ass", "big ass porn"),
+    ("HD", "hd porn"),
+    ("Hindi", "hindi porn"),
+    ("School", "school porn"),
+    ("Group Sex", "group sex porn"),
+    ("Outdoor", "outdoor porn"),
+    ("Office", "office porn"),
+    ("Romantic", "romantic porn"),
+    ("Hardcore", "hardcore porn"),
+    ("Nurse", "nurse porn"),
+    ("Nude", "nude porn"),
+    ("Sexy", "sexy porn"),
+    ("Blowjob", "blowjob porn"),
+    ("Housewife", "housewife porn"),
+    ("Cousin", "cousin porn"),
+    ("Teacher", "teacher porn"),
+    ("Sister", "sister porn"),
+    ("Stepmom", "stepmom porn"),
+    ("Girlfriend", "girlfriend porn"),
+    ("Mature", "mature porn"),
+    ("Solo", "solo porn"),
+    ("Massage", "massage porn"),
+    ("Cheating", "cheating porn"),
+    ("Bath", "bath porn"),
+    ("Public", "public porn"),
+    ("BBW", "bbw porn"),
+    ("Cumshot", "cumshot porn"),
+    ("POV", "pov porn"),
+    ("Gangbang", "gangbang porn"),
+    ("Creampie", "creampie porn"),
+    ("Double Penetration", "double penetration porn"),
+    ("Interracial", "interracial porn"),
+    ("Japanese", "japanese porn"),
+    ("Korean", "korean porn"),
+    ("Chinese", "chinese porn"),
+    ("Russian", "russian porn"),
+    ("Pakistani", "pakistani porn"),
+    ("Bangladeshi", "bangladeshi porn"),
+    ("Nepali", "nepali porn"),
+    ("Sri Lankan", "sri lankan porn"),
+    ("Punjabi", "punjabi porn"),
+    ("Tamil", "tamil porn"),
+    ("Telugu", "telugu porn"),
+    ("Bengali", "bengali porn"),
+    ("Marathi", "marathi porn"),
+    ("Kannada", "kannada porn"),
+    ("Gujarati", "gujarati porn"),
+]
+
+def scrape_video(title):
+    for url_template in SEARCH_SITES:
+        url = url_template.format(title)
         try:
-            resp = requests.get(url, headers=headers, timeout=10)
+            resp = requests.get(url)
             soup = BeautifulSoup(resp.text, "html.parser")
-            
-            # Try to find video links
-            links = []
-            if "xnxx.com" in url:
-                thumbs = soup.find_all("div", class_="thumb")
-                for t in thumbs:
-                    a_tag = t.find("a", href=True)
-                    if a_tag:
-                        links.append("https://www.xnxx.com" + a_tag["href"])
-            elif "xvideos.com" in url:
-                thumbs = soup.find_all("div", class_="thumb-block")
-                for t in thumbs:
-                    a_tag = t.find("a", href=True)
-                    if a_tag:
-                        links.append("https://www.xvideos.com" + a_tag["href"])
-            elif "xhamster.com" in url:
+            thumbs = soup.find_all("div", class_="thumb-block")
+            if not thumbs:
+                thumbs = soup.find_all("div", class_="video")
+            if not thumbs:
                 thumbs = soup.find_all("div", class_="video-thumb")
-                for t in thumbs:
-                    a_tag = t.find("a", href=True)
-                    if a_tag:
-                        links.append("https://xhamster.com" + a_tag["href"])
-            elif "pornhub.com" in url:
-                thumbs = soup.find_all("a", class_="js-pop videoblock")
-                for t in thumbs:
-                    href = t.get("href")
-                    if href:
-                        links.append("https://www.pornhub.com" + href)
-            
-            if links:
-                return random.choice(links)
+            if thumbs:
+                selected = random.choice(thumbs)
+                a_tag = selected.find("a", href=True)
+                video_url = a_tag["href"] if a_tag else None
+                if video_url and not video_url.startswith("http"):
+
+if "xnxx.com" in url:
+                        video_url = "https://www.xnxx.com" + video_url
+                    elif "xvideos.com" in url:
+                        video_url = "https://www.xvideos.com" + video_url
+                    elif "xhamster.com" in url:
+                        video_url = "https://xhamster.com" + video_url
+                    elif "pornhub.com" in url:
+                        video_url = "https://www.pornhub.com" + video_url
+                    elif "porn.com" in url:
+                        video_url = "https://www.porn.com" + video_url
+                    elif "fuq.com" in url:
+                        video_url = "https://www.fuq.com" + video_url
+                    elif "tube8.com" in url:
+                        video_url = "https://www.tube8.com" + video_url
+                    elif "youporn.com" in url:
+                        video_url = "https://www.youporn.com" + video_url
+                    elif "spankbang.com" in url:
+                        video_url = "https://spankbang.com" + video_url
+                    elif "redtube.com" in url:
+                        video_url = "https://www.redtube.com" + video_url
+                return video_url
         except Exception as e:
-            print(f"Scraping error ({url}): {e}")
+            print(f"Scraping error: {e}")
     return None
 
-# --- INIT BOT ---
 app = Client("pornbot_categories", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-# --- START COMMAND ---
 @app.on_message(filters.command("start"))
 async def porn_start(client, message):
     keyboard_buttons = []
@@ -96,30 +149,23 @@ async def porn_start(client, message):
             row = []
     if row:
         keyboard_buttons.append(row)
-
     keyboard_buttons.insert(0, [InlineKeyboardButton("Join Group 1", url=GROUP_LINK_1)])
     keyboard_buttons.insert(1, [InlineKeyboardButton("Join Group 2", url=GROUP_LINK_2)])
-
     await message.reply_photo(
         START_IMAGE_URL,
         caption="Welcome to PornBot!\nJoin our groups and choose your favorite type below.",
         reply_markup=InlineKeyboardMarkup(keyboard_buttons)
     )
 
-# --- CATEGORY BUTTON HANDLERS ---
 for idx, (display, search_term) in enumerate(PORN_CATEGORIES):
     async def handler(client, query, search_term=search_term, display=display):
-        await query.answer("Fetching video... please wait ⏳")
-        video_url = await asyncio.to_thread(scrape_video, search_term)
-        if video_url:
-            try:
-                await query.message.reply_video(video_url, caption=f"{display}")
-            except Exception:
-                await query.message.reply(f"Cannot send video, watch here: {video_url}")
+        video = scrape_video(search_term)
+        if video:
+            await query.message.reply(f"{display}: [Watch here]({video})", disable_web_page_preview=False)
         else:
             await query.message.reply(f"No video found for {display}.")
+        await query.answer()
     app.on_callback_query(filters.regex(f"^porn_{idx}$"))(handler)
 
-# --- RUN BOT ---
-if __name__ == "__main__":
+if name == "main":
     app.run()
