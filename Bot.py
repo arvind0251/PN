@@ -11,7 +11,7 @@ BOT_TOKEN = "7664042669:AAEX4IU21H1r27Pu1kvDNiCowUg8F6t1-jM"
 
 GROUP_LINK_1 = "https://t.me/+I-nuO3khvMUwZmY1"
 GROUP_LINK_2 = "https://t.me/+I-nuO3khvMUwZmY1"
-START_IMAGE_URL = "https://i.imgur.com/yourimage.jpg"  # Replace with your image
+START_IMAGE_URL = "https://i.ibb.co/0jFF4gcX/IMG-20251002-065908-636.jpg"  # Replace with your image
 
 SEARCH_SITES = [
     "https://www.xnxx.com/search/{}",
