@@ -13,7 +13,7 @@ GROUP_LINK_1 = "https://t.me/+I-nuO3khvMUwZmY1"
 GROUP_LINK_2 = "https://t.me/+I-nuO3khvMUwZmY1"
 START_IMAGE_URL = "https://i.ibb.co/0jFF4gcX/IMG-20251002-065908-636.jpg"
 
-# --- SEARCH SITES ---
+# --- SEARCH SITES (YouTube removed) ---
 SEARCH_SITES = [
     "xnxx.com",
     "xvideos.com",
@@ -44,7 +44,8 @@ PORN_CATEGORIES = [
 # --- FUNCTION TO GET VIDEO URL USING yt-dlp ---
 def get_video_url(search_term):
     site = random.choice(SEARCH_SITES)
-    query = f"site:{site} {search_term}"
+    # exclude YouTube just in case
+    query = f"site:{site} {search_term} -site:youtube.com"
     
     ydl_opts = {
         "format": "best[ext=mp4]",
@@ -78,7 +79,7 @@ async def porn_start(client, message):
     if row:
         keyboard_buttons.append(row)
 
-    # Add group buttons
+    # Add group buttons at the top
     keyboard_buttons.insert(0, [InlineKeyboardButton("Join Group 1", url=GROUP_LINK_1)])
     keyboard_buttons.insert(1, [InlineKeyboardButton("Join Group 2", url=GROUP_LINK_2)])
 
