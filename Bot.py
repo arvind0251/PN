@@ -5,12 +5,12 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 # --- CONFIG ---
-API_ID = "YOUR_API_ID"
-API_HASH = "YOUR_API_HASH"
-BOT_TOKEN = "YOUR_BOT_TOKEN"
+API_ID = "21552265"
+API_HASH = "1c971ae7e62cc416ca977e040e700d09"
+BOT_TOKEN = "7664042669:AAEX4IU21H1r27Pu1kvDNiCowUg8F6t1-jM"
 
-GROUP_LINK_1 = "https://t.me/yourgroup1"
-GROUP_LINK_2 = "https://t.me/yourgroup2"
+GROUP_LINK_1 = "https://t.me/+I-nuO3khvMUwZmY1"
+GROUP_LINK_2 = "https://t.me/+I-nuO3khvMUwZmY1"
 START_IMAGE_URL = "https://i.imgur.com/yourimage.jpg"  # Replace with your image
 
 SEARCH_SITES = [
