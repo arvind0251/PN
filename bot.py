@@ -13,7 +13,21 @@ GROUP_LINK_1 = "https://t.me/+I-nuO3khvMUwZmY1"
 GROUP_LINK_2 = "https://t.me/+I-nuO3khvMUwZmY1"
 START_IMAGE_URL = "https://i.ibb.co/0jFF4gcX/IMG-20251002-065908-636.jpg"
 
-# Define all porn categories and their search keywords
+# --- SEARCH SITES ---
+SEARCH_SITES = [
+    "xnxx.com",
+    "xvideos.com",
+    "xhamster.com",
+    "pornhub.com",
+    "porn.com",
+    "fuq.com",
+    "tube8.com",
+    "youporn.com",
+    "spankbang.com",
+    "redtube.com"
+]
+
+# --- PORN CATEGORIES ---
 PORN_CATEGORIES = [
     ("Deshi", "desi porn"),
     ("Indian", "indian porn"),
@@ -29,6 +43,9 @@ PORN_CATEGORIES = [
 
 # --- FUNCTION TO GET VIDEO URL USING yt-dlp ---
 def get_video_url(search_term):
+    site = random.choice(SEARCH_SITES)
+    query = f"site:{site} {search_term}"
+    
     ydl_opts = {
         "format": "best[ext=mp4]",
         "noplaylist": True,
@@ -37,9 +54,8 @@ def get_video_url(search_term):
     }
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(search_term, download=False)
+            info = ydl.extract_info(query, download=False)
             if "entries" in info:
-                # If multiple results, pick a random one
                 info = random.choice(info["entries"])
             return info.get("url")
     except Exception as e:
@@ -80,14 +96,13 @@ for idx, (display, search_term) in enumerate(PORN_CATEGORIES):
         if video_url:
             try:
                 await query.message.reply_video(video_url, caption=f"{display}")
-            except Exception as e:
-                await query.message.reply(f"Failed to send video for {display}.\nYou can watch here: {video_url}")
+            except Exception:
+                # fallback if video too big
+                await query.message.reply(f"Cannot send video, watch here: {video_url}")
         else:
             await query.message.reply(f"No video found for {display}.")
     app.on_callback_query(filters.regex(f"^porn_{idx}$"))(handler)
 
 # --- RUN BOT ---
-if __name__ == "__main__":
-    app.run()
 if __name__ == "__main__":
     app.run()
